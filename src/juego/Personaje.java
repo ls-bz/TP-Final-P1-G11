@@ -7,37 +7,53 @@ import entorno.Herramientas;
 
 public class Personaje {
 	double x,y,escala,ancho,alto,velocidad;
-	Boolean direccion;
-	Image img;
+	Image img,iW,iA,iS,iD;
+	String[] direcciones= {"Arriba","Izquierda","Abajo","Derecha"};;
 	Entorno e;
-	int vida,magia;
+	public int vida,magia;
+	public int magiaMaxima=100;
+	public int vidaMaxima=100;
+	
 	
 	Personaje(double x, double y, Entorno e) {
 		this.x = x;
 		this.y = y;
-		this.direccion = false;
-		this.img = Herramientas.cargarImagen("wizard.png");
-		this.escala = 0.15; // Se puede cambiar
+		this.iW = Herramientas.cargarImagen("wizardW.png");
+		this.iA = Herramientas.cargarImagen("wizardA.png");
+		this.iS = Herramientas.cargarImagen("wizardS.png");
+		this.iD = Herramientas.cargarImagen("wizardD.png");
+
+		this.img = iA;
+		this.escala = 1; // Se puede cambiar
 		this.velocidad = 1.2; // Se puede cambiar
 		this.e = e;
 		this.ancho = img.getWidth(e) * this.escala;
 		this.alto = img.getHeight(e) * this.escala;
-		this.vida = 100;
-		this.magia = 100;
+		this.vida = this.vidaMaxima;
+		this.magia = this.magiaMaxima;
 		
 	}
 	
-	void dibujar() { // Dibujar al personaje en funcion de la direccion
-		if(!this.direccion) {
-			e.dibujarImagen(img, x, y, 0, escala);
+	void dibujar(String direccion) { // Dibujar al personaje en funcion de la direccion
+		if(direccion.equals(direcciones[0])) {
+			img = iW;
+		} else if(direccion.equals(direcciones[1])) {
+			img = iA;
+		} else if(direccion.equals(direcciones[2])) {
+			img = iS;
+		} else if(direccion.equals(direcciones[3])) {
+			img = iD;
 		}
-//		else {
-//			e.dibujarImagen(img, x, y, escala);
-//		}
+		e.dibujarImagen(img, x, y, 0, escala);
 	}
 	
 	void mover(double mH, double mV) { // Movimiento Horizontal y Vertical
 		this.x += mH;
 		this.y += mV;
+	}
+	
+	void recibirDaño(int cantidad) {
+		vida -= cantidad;
+		if(vida<0) vida=0;
 	}
 }

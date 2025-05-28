@@ -15,7 +15,7 @@ public class Obstaculo {
 		this.x = x;
 		this.y = y;
 		this.img0 = Herramientas.cargarImagen("stone.png");
-		this.escala = 0.18; // Se puede cambiar
+		this.escala = 0.25; // Se puede cambiar
 		this.e = e;
 		this.ancho = img0.getWidth(e) * this.escala;
 		this.alto = img0.getHeight(e) * this.escala;
