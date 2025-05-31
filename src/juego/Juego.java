@@ -2,7 +2,6 @@ package juego;
 
 
 import java.awt.Color;
-//import java.awt.Color;
 import java.awt.Image;
 
 import entorno.Entorno;
@@ -12,16 +11,25 @@ import entorno.InterfaceJuego;
 public class Juego extends InterfaceJuego {
 	private Entorno entorno; // El objeto Entorno que controla el tiempo y otros
 	Image background;
+	boolean ganar = false;
+	
 	Personaje mago;
+	int direccion_mago = 2; // El personaje mira hacia abajo por defecto
+	
 	Obstaculo piedras[];
+	
+	String[] anim_murcielago = {"bat1.png", "bat2.png", "bat3.png", "bat2.png"};
 	Enemigo murcielagos[];
-	Proyectil poderes;
+	int mGenerados = 0;
+	int maxMurcielagos = 50; // Cantidad máxima de murcielagos
+	int maxMSimultaneos = 10; // Cantidad máxima de murcielagos en pantalla
+	
 	Menu menu;
-	Color rojo,azul;
-	
-	int direccion_mago = 2; // El personaje mira hacia abajo por defectoa
-	
-	
+	Boton botones[];
+	int botonActivo=-1;
+	Color rojo = new Color(255,0,0);
+	Color azul = new Color(0,0,255);
+
 	
 	Juego() {
 		// Inicializa el objeto entorno
@@ -29,33 +37,34 @@ public class Juego extends InterfaceJuego {
 		this.background = Herramientas.cargarImagen("background.png");
 		// Inicializar lo que haga falta para el juego
 		menu = new Menu(entorno);
+		String[] poderes = {"poder1.png", "poder2.png"};
+		
+		botones = new Boton[2];
+		botones[0] = new Boton(700, 100, entorno, poderes[0], "Bomba de agua");
+		botones[1] = new Boton(700, 225, entorno, poderes[1], "Bomba de fuego");
+
 		mago = new Personaje(entorno.ancho()/2, entorno.alto()/2, entorno);
-		poderes = new Proyectil(40,20,1.0);
 		
-		
+		// GENERAR PIEDRAS
 		piedras = new Obstaculo[6];
 		
 		int[] coorX = {100, 100, 500, 500, 210, 390};
 		int[] coorY = {100, 500, 100, 500, 210, 390};
 		
-		
-		// GENERAR PIEDRAS
 		for (int t = 0;t<piedras.length;t++) {
 			piedras[t] = new Obstaculo(coorX[t],coorY[t],entorno);				
 		}
 		
-		rojo = new Color(255,0,0);
-		azul = new Color(0,0,255);
-		
-		String[] anim_murcielago = { "bat1.png", "bat2.png", "bat3.png", "bat2.png"};
-		murcielagos = new Enemigo[2];
-		murcielagos[0] = new Enemigo(500, 420, entorno, 10, anim_murcielago);
-		murcielagos[1] = new Enemigo(600, 0, entorno, 10, anim_murcielago);
+		murcielagos = new Enemigo[maxMurcielagos];
+		if(maxMurcielagos < maxMSimultaneos) maxMSimultaneos=maxMurcielagos;
 		
 		this.entorno.iniciar(); // Inicia el juego!
 
 	}
+	
 	public void tick() {
+		
+		// CONDICION DE FIN DE JUEGO
 		if(mago==null) {
 			entorno.dibujarImagen(background, entorno.ancho()/2, entorno.alto()/2, 0, 1.0);
 			entorno.cambiarFont("Arial", 30, java.awt.Color.WHITE);
@@ -66,10 +75,7 @@ public class Juego extends InterfaceJuego {
 		entorno.dibujarImagen(background, entorno.ancho()/2, entorno.alto()/2, 0, 1.0); // (Imagen, ancho, alto, angulo, escala)
 		mago.dibujar(mago.direcciones[direccion_mago]);
 		
-		if(entorno.sePresionoBoton(entorno.BOTON_IZQUIERDO)) {
-			disparar(entorno.mouseX(), entorno.mouseY(), poderes, mago);
-		}
-		
+		if(mago.magia < mago.magiaMaxima && mago.magia >= 0 && entorno.numeroDeTick()%100==0) mago.magia++;
 		
 		// VERIFICA SI EL JUGADOR COLISIONA CON ALGUN OBSTACULO
 		boolean colisiones = false;
@@ -81,6 +87,24 @@ public class Juego extends InterfaceJuego {
 		}
 		
 		// GENERA MURCIELAGOS Y DEFINE SU COMPORTAMIENTO
+		int cM = 0;
+		boolean genM = false;
+		while(entorno.numeroDeTick()%20==0 && cM<maxMSimultaneos & mGenerados<maxMurcielagos) {
+			if (murcielagos[cM] == null && !genM) {
+				int xM;
+				if (Math.random() < 0.5) {
+				    xM = -50;
+				} else {
+				    xM = (int) (entorno.ancho()-menu.ancho);
+				}
+                int yM = (int) (Math.random() * 600); 
+				murcielagos[cM] = new Enemigo(xM, yM, entorno, 10, anim_murcielago);
+				genM = true;
+				mGenerados++;
+		    }
+			cM++;
+		}
+		
 		for(int k=0;k<murcielagos.length;k++) {
 			if(murcielagos[k]!=null) {
 				murcielagos[k].dibujar();
@@ -88,16 +112,32 @@ public class Juego extends InterfaceJuego {
 				if(colisionEM(murcielagos[k], mago)) {
 					mago.recibirDaño(murcielagos[k].daño);
 					murcielagos[k] = null;
-				}
-				
+				}	
 			}
-//			if(murcielagos[k].vida<=0) {
-//				murcielagos[k] = null;
-//			}
+			if(murcielagos[k] != null && murcielagos[k].estaMuerto()) {
+				murcielagos[k] = null;
+				//mEliminados++;
+			}
 		}
 		
-		
+		// CONFIGURACION DE PANEL Y BOTONES
 		menu.dibujar();
+		
+		for(int b=0;b<botones.length;b++) {
+			botones[b].dibujar();
+			if(entorno.sePresionoBoton(entorno.BOTON_IZQUIERDO) && botones[b].encima(entorno.mouseX(), entorno.mouseY())) {
+				botonActivo = b;
+				System.out.println("Seleccionaste: "+botones[b].nombre);
+			}
+			
+		}
+		for (int b = 0; b < botones.length; b++) {
+			if (b == botonActivo) {
+				botones[b].escala = 0.32;
+			} else {
+				botones[b].escala = 0.35;
+			}
+		}
 		
 		entorno.dibujarRectangulo(700, 495, 130, 30, 0, rojo);
 		entorno.dibujarRectangulo(700, 545, 130, 30, 0, azul);
@@ -126,6 +166,8 @@ public class Juego extends InterfaceJuego {
 				direccion_mago = 3;
 			}	
 		}
+		
+		// CONDICION DE PERDER
 		if(mago.vida<=0) {
 			mago = null;
 		}
@@ -200,9 +242,7 @@ public class Juego extends InterfaceJuego {
 			e.mover(0,-e.velocidad);
 		}
 	}
-	
-	
-	
+
 	void disparar(int x, int y, Proyectil p, Personaje player) {
 		if(x>=0 && x<=entorno.ancho()-menu.ancho && y>=0 && y<=entorno.alto() && player.magia-p.coste>=0) {
 			player.magia-=p.coste;

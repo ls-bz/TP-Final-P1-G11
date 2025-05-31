@@ -22,6 +22,12 @@ public class Menu {
 		
 	}
 	
+	boolean encima(double x, double y) {
+		return false;
+		//return Math.abs(sigX - o.x) <= (e.ancho / 2.0 + o.ancho / 2.0) && Math.abs(sigY - o.y) <= (e.alto / 2.0 + o.alto / 2.0);
+
+	}
+	
 	void dibujar() {
 		e.dibujarImagen(img, x, y, 0, escala);
 	}

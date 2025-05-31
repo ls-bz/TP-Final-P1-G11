@@ -22,7 +22,7 @@ public class Enemigo {
         for (int i = 0;i<imagenes.length;i++) {
             this.animaciones[i] = Herramientas.cargarImagen(imagenes[i]);
         }
-		this.escala = 1.5; // Se puede cambiar
+		this.escala = 1.4; // Se puede cambiar
 		this.velocidad = 0.75; // Se puede cambiar
 		this.e = e;
 		this.ancho = animaciones[0].getWidth(e) * this.escala; // Asume que todas las anim. tienen el mismo tamaño
@@ -46,5 +46,13 @@ public class Enemigo {
 	void mover(double mH, double mV) { // Movimiento Horizontal y Vertical
 		this.x += mH;
 		this.y += mV;
+	}
+	
+	boolean estaMuerto() {
+		return (this.vida <= 0);
+	}
+	
+	void generacion() {
+		
 	}
 }
