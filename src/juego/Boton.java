@@ -6,10 +6,10 @@ import entorno.Entorno;
 import entorno.Herramientas;
 
 public class Boton {
-	double x,y,escala,ancho,alto;
-	Image img;
-	Entorno e;
-	String nombre;
+	private double x,y,escala,ancho,alto;
+	private Image img;
+	private Entorno e;
+	private String nombre;
 	
 	Boton(double x, double y, Entorno e, String imagen, String nombre) {
 		this.x = x;
@@ -28,5 +28,17 @@ public class Boton {
 	
 	boolean encima(double x, double y) {
 		return (x<this.x+this.ancho/2 && x>this.x-this.ancho/2 && y<this.y+this.alto/2 && y>this.y-this.alto/2);
+	}
+	
+	public String obtenerNombre() {
+        return nombre;
+    }
+	
+	public double obtenerEscala() {
+        return escala;
+    }
+	
+	public void cambiarEscala(double nuevaEscala) {
+		escala = nuevaEscala;
 	}
 }

@@ -6,13 +6,13 @@ import entorno.Entorno;
 import entorno.Herramientas;
 
 public class Personaje {
-	double x,y,escala,ancho,alto,velocidad;
-	Image img,iW,iA,iS,iD;
-	String[] direcciones= {"Arriba","Izquierda","Abajo","Derecha"};;
-	Entorno e;
-	public int vida,magia;
-	public int magiaMaxima=100;
-	public int vidaMaxima=100;
+	private double x,y,escala,ancho,alto,velocidad;
+	private Image img,iW,iA,iS,iD;
+	private String[] direcciones= {"Arriba","Izquierda","Abajo","Derecha"};;
+	private Entorno e;
+	private int vida,magia;
+	private int magiaMaxima=100;
+	private int vidaMaxima=100;
 	
 	
 	Personaje(double x, double y, Entorno e) {
@@ -47,6 +47,12 @@ public class Personaje {
 		e.dibujarImagen(img, x, y, 0, escala);
 	}
 	
+	public String obtenerDirecciones(int i) {
+		if(i<0) i=0;
+		if(i>3) i=3;
+	    return direcciones[i];
+	}
+	
 	void mover(double mH, double mV) { // Movimiento Horizontal y Vertical
 		this.x += mH;
 		this.y += mV;
@@ -55,5 +61,60 @@ public class Personaje {
 	void recibirDaño(int cantidad) {
 		vida -= cantidad;
 		if(vida<0) vida=0;
+	}
+	
+	public int obtenerVida() {
+        return vida;
+    }
+	
+	public int obtenerMagia() {
+        return magia;
+    }
+	
+	public int obtenerVidaMax() {
+        return vidaMaxima;
+    }
+	
+	public int obtenerMagiaMax() {
+        return magiaMaxima;
+    }
+	
+	public void perderMagia(int coste) {
+        this.magia -= coste;
+        if(this.magia < 0) this.magia=0;
+    }
+	
+	public void ganarMagia(int ganancia) {
+        this.magia += ganancia;
+        if(this.magia > this.magiaMaxima) this.magia=this.magiaMaxima;
+    }
+	
+	public double obtenerAncho() {
+        return ancho;
+    }
+	
+	public double obtenerAlto() {
+        return alto;
+	}
+	
+	public double obtenerPosX() {
+        return x;
+    }
+	
+	public double obtenerPosY() {
+        return y;
+	}
+	
+	public double obtenerVelocidad() {
+        return velocidad;
+	}
+	
+	
+	boolean sinMagia() {
+		if(this.magia<=0) {
+			this.magia=0;
+			return true;
+		}
+		return false;
 	}
 }
